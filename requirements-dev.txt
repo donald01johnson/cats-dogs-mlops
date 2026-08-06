@@ -1,0 +1,13 @@
+# =============================================================
+# cats-dogs-mlops — Development & Testing Dependencies
+# Install with: pip install -r requirements-dev.txt
+# (In addition to requirements.txt)
+# =============================================================
+
+# --- Testing ---
+pytest==7.4.4
+httpx==0.27.0
+
+# --- Code Quality (optional but good practice) ---
+flake8==7.1.0
+black==24.4.2

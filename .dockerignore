@@ -1,0 +1,30 @@
+# Virtual environment
+mlops_cd/
+
+# Large data directories (not needed in container)
+data/
+mlruns/
+notebooks/
+logs/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# DVC
+.dvc/
+
+# Git
+.git/
+.gitignore
+
+# Test files
+tests/
+scripts/
+
+# Dev files
+*.md
+.env

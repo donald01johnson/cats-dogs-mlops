@@ -238,3 +238,17 @@ Set at: `GitHub Repo → Settings → Secrets and Variables → Actions`
 ## 📄 License
 
 For academic use only — BITS Pilani AIMLCZG523 Assignment 2.
+
+## ⚠️ CI/CD Model Artifact Note
+
+The trained model (`artifacts/model.pt`, 197MB) is tracked by **DVC** and not
+stored in Git. The CI pipeline uses a randomly initialized dummy model for
+building and testing the Docker image.
+
+**For production deployment with the real trained model:**
+```bash
+# Build locally with real model.pt
+docker build --no-cache -f docker/Dockerfile -t donald01johnson/cats-dogs-api:latest .
+docker push donald01johnson/cats-dogs-api:latest
+# Then trigger CD pipeline or redeploy manually
+docker compose -f deploy/docker-compose.yml up -d --force-recreate

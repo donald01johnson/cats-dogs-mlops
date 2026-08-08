@@ -1,0 +1,101 @@
+# =============================================================
+# .github/workflows/cd.yml
+# CD Pipeline: Pull → Deploy → Smoke Test
+#
+# Trigger:
+#   - Runs AFTER ci.yml completes successfully on main branch
+#
+# Runner:
+#   - self-hosted (your Ubuntu 22.04 laptop)
+#   - Deploys directly to local Docker Compose environment
+#
+# Jobs:
+#   1. deploy: Pull image → docker compose up → smoke test
+# =============================================================
+
+name: CD — Deploy & Smoke Test
+
+on:
+  # Trigger AFTER the CI workflow completes successfully
+  workflow_run:
+    workflows: ["CI — Test, Build & Push"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+
+  # ────────────────────────────────────────────────────────────
+  # JOB: Deploy to local Ubuntu machine via self-hosted runner
+  # ────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy & Smoke Test
+    runs-on: self-hosted   # ← Runs on YOUR Ubuntu 22.04 laptop
+
+    # Only deploy if CI workflow actually succeeded (not just completed)
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      # Step 1: Checkout repository (gets latest docker-compose.yml + smoke_test.sh)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Pull latest Docker image from Docker Hub
+      - name: Pull latest Docker image
+        run: |
+          echo "Pulling latest image from Docker Hub..."
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cats-dogs-api:latest
+          echo "Pull complete."
+
+      # Step 3: Ensure logs directory exists on host
+      - name: Prepare deployment environment
+        run: |
+          mkdir -p ${{ github.workspace }}/logs
+          echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" > ${{ github.workspace }}/deploy/.env
+
+      # Step 4: Deploy with Docker Compose
+      #   --force-recreate: always restart container with new image
+      #   --remove-orphans: clean up any old services
+      - name: Deploy with Docker Compose
+        run: |
+          echo "Deploying with Docker Compose..."
+          docker compose \
+            -f ${{ github.workspace }}/deploy/docker-compose.yml \
+            --env-file ${{ github.workspace }}/deploy/.env \
+            up -d --pull always --force-recreate --remove-orphans
+          echo "Deployment complete."
+
+      # Step 5: Wait for container to be healthy
+      - name: Wait for service to start
+        run: |
+          echo "Waiting 20 seconds for service to initialize..."
+          sleep 20
+          docker compose -f ${{ github.workspace }}/deploy/docker-compose.yml ps
+
+      # Step 6: Run smoke tests — FAILS pipeline if any test fails
+      - name: Run smoke tests
+        run: |
+          echo "Running post-deployment smoke tests..."
+          chmod +x ${{ github.workspace }}/deploy/smoke_test.sh
+          TEST_IMAGE=${{ github.workspace }}/deploy/test_sample.jpg \
+          API_URL=http://localhost:8000 \
+          ${{ github.workspace }}/deploy/smoke_test.sh
+
+      # Step 7: Show container logs on failure (for debugging)
+      - name: Show container logs on failure
+        if: failure()
+        run: |
+          echo "=== Container logs (last 50 lines) ==="
+          docker logs cats-dogs-api --tail 50 || echo "Could not retrieve logs."
+
+      # Step 8: Print deployment summary on success
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "=============================================="
+          echo "  DEPLOYMENT SUCCESSFUL ✅"
+          echo "  Image   : ${{ secrets.DOCKERHUB_USERNAME }}/cats-dogs-api:latest"
+          echo "  Service : http://localhost:8000"
+          echo "  Commit  : ${{ github.sha }}"
+          echo "=============================================="

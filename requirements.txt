@@ -3,7 +3,7 @@
 # Platform : Ubuntu 22.04 / python:3.10-slim (Docker)
 # =============================================================
 
-# PyTorch CPU — installed separately in Dockerfile via extra-index-url
+# PyTorch CPU — installed via extra-index-url in Dockerfile
 # torch==2.13.0+cpu
 # torchvision==0.28.0+cpu
 

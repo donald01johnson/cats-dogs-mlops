@@ -1,0 +1,50 @@
+# =============================================================
+# deploy/prometheus.yml
+# Prometheus scrape configuration for Cats vs Dogs API
+#
+# Prometheus scrapes metrics from our FastAPI /metrics endpoint
+# every 15 seconds and stores them in its time-series database.
+#
+# Access Prometheus UI at: http://localhost:9090
+#
+# Useful queries in Prometheus UI:
+#   predictions_total                          → total predictions by label
+#   rate(predictions_total[1m])                → prediction rate per second
+#   api_requests_total                         → total requests by path/status
+#   prediction_latency_ms_bucket               → latency histogram
+#   histogram_quantile(0.95, rate(prediction_latency_ms_bucket[5m]))
+#                                              → 95th percentile latency
+# =============================================================
+
+global:
+  # How often Prometheus scrapes all targets
+  scrape_interval: 15s
+
+  # How often Prometheus evaluates alerting rules
+  evaluation_interval: 15s
+
+  # Labels added to all time series from this Prometheus instance
+  external_labels:
+    monitor: "cats-dogs-mlops"
+    environment: "local"
+
+# ── Scrape configurations ──────────────────────────────────────
+scrape_configs:
+
+  # Scrape target 1: Our FastAPI inference API
+  - job_name: "cats-dogs-api"
+    static_configs:
+      - targets: ["cats-dogs-api:8000"]   # Docker Compose service name:port
+        labels:
+          service: "inference-api"
+          version: "1.0.0"
+    metrics_path: "/metrics"              # Our Prometheus endpoint
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Scrape target 2: Prometheus itself (optional — for meta-monitoring)
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          service: "prometheus"

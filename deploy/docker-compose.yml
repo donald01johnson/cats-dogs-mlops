@@ -1,16 +1,28 @@
 # =============================================================
 # deploy/docker-compose.yml
-# Deployment manifest for Cats vs Dogs Inference API
+# Deployment manifest for Cats vs Dogs MLOps Stack
+#
+# Services:
+#   1. cats-dogs-api  → FastAPI inference service (port 8000)
+#   2. prometheus     → Metrics collection + UI  (port 9090)
 #
 # Usage:
 #   docker compose -f deploy/docker-compose.yml up -d
 #   docker compose -f deploy/docker-compose.yml down
 #   docker compose -f deploy/docker-compose.yml ps
+#   docker compose -f deploy/docker-compose.yml logs -f
+#
+# Access:
+#   API       → http://localhost:8000
+#   API Docs  → http://localhost:8000/docs
+#   Metrics   → http://localhost:8000/metrics
+#   Prometheus→ http://localhost:9090
 # =============================================================
 
-version: "3.9"
 
 services:
+
+  # ── Service 1: FastAPI Inference API ──────────────────────────
   cats-dogs-api:
     # Pull latest image from Docker Hub
     image: ${DOCKERHUB_USERNAME:-donald01johnson}/cats-dogs-api:latest
@@ -44,7 +56,7 @@ services:
       retries: 3
       start_period: 20s
 
-    # Resource limits (prevents container from consuming all CPU/RAM)
+    # Resource limits
     deploy:
       resources:
         limits:
@@ -58,3 +70,58 @@ services:
       options:
         max-size: "50m"
         max-file: "5"
+
+    # Connect to shared monitoring network
+    networks:
+      - mlops-network
+
+  # ── Service 2: Prometheus ──────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.52.0
+
+    container_name: cats-dogs-prometheus
+
+    restart: unless-stopped
+
+    # Map host port 9090 to container port 9090
+    ports:
+      - "9090:9090"
+
+    # Mount Prometheus config file into container
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus               # Persistent metric storage
+
+    # Start Prometheus with our config
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"        # Keep 7 days of data
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.enable-lifecycle"                  # Allow config reload via API
+
+    # Prometheus depends on API being up first
+    depends_on:
+      - cats-dogs-api
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+    # Connect to shared monitoring network
+    networks:
+      - mlops-network
+
+# ── Named volumes ──────────────────────────────────────────────
+volumes:
+  prometheus_data:
+    driver: local
+
+# ── Networks ───────────────────────────────────────────────────
+networks:
+  mlops-network:
+    driver: bridge

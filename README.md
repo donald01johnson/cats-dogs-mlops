@@ -20,7 +20,7 @@
 
 | Field | Details |
 |---|---|
-| **Course** | S1-25_AIMLCZG523 — MLOps |
+| **Course** | S2-25_AIMLCZG523 — MLOps |
 | **Institution** | BITS Pilani (WILP) |
 | **Assignment** | Assignment 2 |
 | **Author** | Donald Johnson A. |
@@ -463,5 +463,3 @@ docker compose -f deploy/docker-compose.yml up -d --force-recreate
 ## 📄 License
 
 For academic use only.
-# recording ready
-# recording ready

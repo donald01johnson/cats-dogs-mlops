@@ -9,8 +9,8 @@
 
 | Resource | Link |
 |---|---|
-| 📁 **GitHub Repository** | `<!-- ADD YOUR GITHUB REPO URL HERE -->` |
-| 🎬 **Demo Video** | `<!-- ADD YOUR DEMO VIDEO LINK HERE (< 5 min) -->` |
+| 📁 **GitHub Repository** | [https://github.com/donald01johnson/cats-dogs-mlops](https://github.com/donald01johnson/cats-dogs-mlops) |
+| 🎬 **Demo Video** | [Demo Video Drive Link](https://drive.google.com/file/d/17kJvxJqceUboOclhrcn8al3UzeJOPu6C/view?usp=sharing) |
 | 🐳 **Docker Hub Image** | [donald01johnson/cats-dogs-api](https://hub.docker.com/r/donald01johnson/cats-dogs-api) |
 | 📊 **Dataset** | [Kaggle — Cats & Dogs Classification](https://www.kaggle.com/datasets/bhavikjikadara/dog-and-cat-classification-dataset) |
 

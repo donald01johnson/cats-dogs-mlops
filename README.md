@@ -22,7 +22,7 @@
 |---|---|
 | **Course** | S1-25_AIMLCZG523 — MLOps |
 | **Institution** | BITS Pilani (WILP) |
-| **Assignment** | Assignment 2 — Total Marks: 50 |
+| **Assignment** | Assignment 2 |
 | **Author** | Donald Johnson A. |
 | **Platform** | Ubuntu 22.04 LTS |
 
@@ -51,14 +51,13 @@ A pet adoption platform needs to automatically classify images uploaded by users
 
 ## 🚀 Milestones
 
-| # | Title | Marks | Status |
-|---|---|---|---|
-| **M1** | Model Development & Experiment Tracking | 10 | ✅ Complete |
-| **M2** | Model Packaging & Containerization | 10 | ✅ Complete |
-| **M3** | CI Pipeline — Build, Test & Image | 10 | ✅ Complete |
-| **M4** | CD Pipeline & Deployment | 10 | ✅ Complete |
-| **M5** | Monitoring, Logs & Final Submission | 10 | ✅ Complete |
-| | **TOTAL** | **50** | ✅ **50/50** |
+| # | Title |
+|---|---|
+| **M1** | Model Development & Experiment Tracking |
+| **M2** | Model Packaging & Containerization |
+| **M3** | CI Pipeline — Build, Test & Image |
+| **M4** | CD Pipeline & Deployment |
+| **M5** | Monitoring, Logs & Final Submission |
 
 ---
 
@@ -463,4 +462,4 @@ docker compose -f deploy/docker-compose.yml up -d --force-recreate
 
 ## 📄 License
 
-For academic use only — BITS Pilani AIMLCZG523 Assignment 2.
+For academic use only.
